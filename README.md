@@ -1,7 +1,7 @@
 # MyAlice
 Discord battle bot
 
-基本上是照著https://home.gamer.com.tw/creationDetail.php?sn=4433179的教學架的
+基本上是照著 https://home.gamer.com.tw/creationDetail.php?sn=4433179 的教學架的
 
 建立Discord bot後把這些檔案pull下來，加上auth.json就可以用了
 
