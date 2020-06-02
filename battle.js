@@ -154,9 +154,6 @@ function block_output(def){
 	return `，但是${def}用解放的刀身擋下了攻擊\n`
 }
 
-function moreHit(hit, g){
-
-}
 
 function skill(){
 	var enhance = Math.random() < 0.3

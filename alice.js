@@ -2,6 +2,7 @@ var Discord = require('discord.io');
 var logger = require('winston');
 var auth = require('./auth.json');
 var battle = require('./battle.js');
+var move = require('./move.js');
 // Configure logger settings
 logger.remove(logger.transports.Console);
 logger.add(new logger.transports.Console, {
@@ -29,6 +30,14 @@ if (message.substring(0, 1) == '$') {
                         to: channelID,
                         message: msg
                     });
+                })
+                break;
+            case 'move':
+                move.practice(user, args[1], function(msg){
+                    bot.sendMessage({
+                        to: channelID,
+                        message: msg
+                    });                    
                 })
 
             break;
