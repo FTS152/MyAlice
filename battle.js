@@ -1,3 +1,4 @@
+var info = require('./info.js');
 
 
 exports.fight = function(user, opponent, mode, shout, callback){
@@ -6,51 +7,64 @@ exports.fight = function(user, opponent, mode, shout, callback){
 	}else{
 		death = {'友好切磋':0.002, '認真對決':0.05, '決一死戰':0.25, '我要殺死你':0.6}
 		var m = new Date()
-		var user_hp = 3250
-		var opp_hp = 3250
-		var user_g = 0
-		var opp_g = 0
-		var msg = `${user} 向 ${opponent} 發起 ${mode} ${m.toLocaleString()} \n`
-		if (shout){
-			msg = msg.concat(`${user} 向 ${opponent} 喊道：「${shout}」\n`)
-		}
-		round = 0
-		while(user_hp > 0 && opp_hp > 0){
-			if (round%2 == 0){
-				skill_use = skill()
-				if (skill_use[0] && user_g==0){
-					msg = msg.concat(`「Enhance Armament」${user}解放了金木樨之劍，刀身化作無數的碎片\n`)
-					user_g = 1
-				}
-				round_data = round_fight(user, opponent, skill_use, user_g, opp_g, user_hp)
-				msg = msg.concat(round_data['round_msg'])
-				user_hp = user_hp + round_data['heal']
-				opp_hp = opp_hp - round_data['damage']
+		info.cooldown(user, function(canBattle, cool){
+			if(!canBattle){
+				callback(`${user} 的戰鬥CD還在冷卻中，還有 ${cool} 秒才能再次發起戰鬥 \n`)
 			}else{
-				skill_use = skill()
-				if (skill_use[0] && opp_g==0){
-					msg = msg.concat(`「Enhance Armament」${opponent}解放了金木樨之劍，刀身化作無數的碎片\n`)
-					opp_g = 1
+				var user_hp = 3250
+				var opp_hp = 3250
+				var user_g = 0
+				var opp_g = 0
+				var msg = `${user} 向 ${opponent} 發起 ${mode} ${m.toLocaleString()} \n`
+				if (shout){
+					msg = msg.concat(`${user} 向 ${opponent} 喊道：「${shout}」\n`)
 				}
-				round_data = round_fight(opponent, user, skill_use, opp_g, user_g, opp_hp)
-				msg = msg.concat(round_data['round_msg'])
-				opp_hp = opp_hp + round_data['heal']
-				user_hp = user_hp - round_data['damage']
+				round = 0
+				while(user_hp > 0 && opp_hp > 0){
+					if (round%2 == 0){
+						skill_use = skill()
+						if (skill_use[0] && user_g==0){
+							msg = msg.concat(`「Enhance Armament」${user}解放了金木樨之劍，刀身化作無數的碎片\n`)
+							user_g = 1
+						}
+						round_data = round_fight(user, opponent, skill_use, user_g, opp_g, user_hp)
+						msg = msg.concat(round_data['round_msg'])
+						user_hp = user_hp + round_data['heal']
+						opp_hp = opp_hp - round_data['damage']
+					}else{
+						skill_use = skill()
+						if (skill_use[0] && opp_g==0){
+							msg = msg.concat(`「Enhance Armament」${opponent}解放了金木樨之劍，刀身化作無數的碎片\n`)
+							opp_g = 1
+						}
+						round_data = round_fight(opponent, user, skill_use, opp_g, user_g, opp_hp)
+						msg = msg.concat(round_data['round_msg'])
+						opp_hp = opp_hp + round_data['heal']
+						user_hp = user_hp - round_data['damage']
+					}
+					round = round + 1
+				}
+				if (user_hp < 0){
+					msg = msg.concat(`${user}倒下了， ${opponent}剩餘 ${opp_hp} 點血量\n`)
+					if(Math.random()<death[mode]){
+						msg = msg.concat(`${user}被擊殺身亡了\n`)
+						info.record_battle(user, opponent, 0, 1)
+					}else{
+						info.record_battle(user, opponent, 0, 0)
+					}
+				}else if (opp_hp < 0){
+					msg = msg.concat(`${opponent}倒下了， ${user}剩餘 ${user_hp} 點血量\n`)
+					if(Math.random()<death[mode]){
+						msg = msg.concat(`${opponent}被擊殺身亡了\n`)
+						info.record_battle(user, opponent, 1, 1)
+					}else{
+						info.record_battle(user, opponent, 1, 0)
+					}
+				}
+				callback(msg)					
 			}
-			round = round + 1
-		}
-		if (user_hp < 0){
-			msg = msg.concat(`${user}倒下了， ${opponent}剩餘 ${opp_hp} 點血量\n`)
-			if(Math.random()<death[mode]){
-				msg = msg.concat(`${user}被擊殺身亡了\n`)
-			}
-		}else if (opp_hp < 0){
-			msg = msg.concat(`${opponent}倒下了， ${user}剩餘 ${user_hp} 點血量\n`)
-			if(Math.random()<death[mode]){
-				msg = msg.concat(`${opponent}被擊殺身亡了\n`)
-			}
-		}
-		callback(msg)	
+        })
+
 	}
 
 }
@@ -66,9 +80,14 @@ function round_fight(att, def, skill_use, att_g, def_g, cur_hp){
 		r = r.concat(`「Generate thermal element, arrow shape, discharge」${att}發射火元素攻擊，對${def}造成 ${d} 點傷害\n`)
 	}
 	if(skill_use[2]){
-		d = getRndInteger(900, 4000)
-		damage = damage + d
-		r = r.concat(`${att}的飛龍雨緣從空中發射吐息攻擊，對${def}造成 ${d} 點傷害\n`)
+		var miss = Math.random() < 0.5
+		if(miss){
+			r = r.concat(`${att}的飛龍雨緣在空中飛了一圈但是沒有吐息，哭啊\n`)
+		}else{			
+			d = getRndInteger(900, 4000)
+			damage = damage + d
+			r = r.concat(`${att}的飛龍雨緣從空中發射吐息攻擊，對${def}造成 ${d} 點傷害\n`)
+		}
 	}
 	if(skill_use[3] && cur_hp < 3250){
 		heal = Math.min(3250-cur_hp, getRndInteger(100, 300))
@@ -87,7 +106,7 @@ function round_fight(att, def, skill_use, att_g, def_g, cur_hp){
 	else if(def_g && block){r = r.concat(block_output(def))}
 	else{
 		if (critical){
-			d = Math.floor(getRndInteger(400, 600)*2.5)
+			d = Math.floor(getRndInteger(400, 600)*2)
 			damage = damage + d
 			r = r.concat(`命中要害，對${def}造成 ${d} 點傷害\n`)
 		}else{
@@ -99,7 +118,7 @@ function round_fight(att, def, skill_use, att_g, def_g, cur_hp){
 
 	if(att_g){
 		counter = 2
-		while(Math.random() < 0.6){
+		while(Math.random() < 0.5){
 			dodge = Math.random() < 0.05
 			block = Math.random() < 0.3
 			critical = Math.random() < 0.2
@@ -108,7 +127,7 @@ function round_fight(att, def, skill_use, att_g, def_g, cur_hp){
 			else if(def_g && block){r = r.concat(block_output(def))}
 			else{
 				if (critical){
-					d = Math.floor(getRndInteger(150, 350)*2.5)
+					d = Math.floor(getRndInteger(150, 350)*2)
 					damage = damage + d
 					r = r.concat(`命中要害，對${def}造成 ${d} 點傷害\n`)
 				}else{
@@ -130,7 +149,7 @@ function round_fight(att, def, skill_use, att_g, def_g, cur_hp){
 			else if(def_g && block){r = r.concat(block_output(def))}
 			else{
 				if (critical){
-					d = Math.floor(getRndInteger(400, 600)*2.5)
+					d = Math.floor(getRndInteger(400, 600)*2)
 					damage = damage + d
 					r = r.concat(`命中要害，對${def}造成 ${d} 點傷害\n`)
 				}else{
@@ -156,7 +175,7 @@ function block_output(def){
 
 
 function skill(){
-	var enhance = Math.random() < 0.3
+	var enhance = Math.random() < 0.2
 	var fire = Math.random() < 0.15
 	var drake = Math.random() < 0.25
 	var heal = Math.random() < 0.05

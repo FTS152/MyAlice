@@ -3,6 +3,7 @@ var logger = require('winston');
 var auth = require('./auth.json');
 var battle = require('./battle.js');
 var move = require('./move.js');
+var info = require('./info.js');
 // Configure logger settings
 logger.remove(logger.transports.Console);
 logger.add(new logger.transports.Console, {
@@ -14,18 +15,34 @@ var bot = new Discord.Client({
    token: auth.token,
    autorun: true
 });
+
 bot.on("ready", function (evt) {
     logger.info("Connected");
     logger.info("Logged in as: ");
     logger.info(bot.username + " - (" + bot.id + ")");
 });
 bot.on("message", function (user, userID, channelID, message, evt) {
-if (message.substring(0, 1) == '$') {
+    if (message.substring(0, 1) == '$') {
         var args = message.substring(1).split(' ');
         var cmd = args[0];
+        var username = bot.users[userID].username
+
         switch(cmd) {
             case 'battle':
-                battle.fight(user, args[1], args[2], args[3], function(msg){
+                var opp
+                if(args.length > 1){
+                    if (args[1][0] == '<'){
+                        opp = getUserFromMention(args[1])
+                        if(!opp){
+                            opp = args[1]
+                        }
+                    }else{
+                        opp = args[1]
+                    }                    
+                }
+                console.log(args[1].username)
+
+                battle.fight(username, opp, args[2], args[3], function(msg){
                     bot.sendMessage({
                         to: channelID,
                         message: msg
@@ -33,11 +50,30 @@ if (message.substring(0, 1) == '$') {
                 })
                 break;
             case 'move':
-                move.practice(user, args[1], function(msg){
+                move.practice(username, args[1], function(msg){
                     bot.sendMessage({
                         to: channelID,
                         message: msg
                     });                    
+                })
+                break
+            case 'info':
+                var opp
+                if(args.length > 1){
+                    if (args[1][0] == '<'){
+                        opp = getUserFromMention(args[1])
+                        if(!opp){
+                            opp = args[1]
+                        }
+                    }else{
+                        opp = args[1]
+                    }                    
+                }
+                info.record(username, opp, function(msg){
+                    bot.sendMessage({
+                        to: channelID,
+                        message: msg
+                    });                      
                 })
 
             break;
@@ -45,3 +81,10 @@ if (message.substring(0, 1) == '$') {
 
      }
 });
+
+function getUserFromMention(mention) {
+    const matches = mention.match(/^<@!?(\d+)>$/);
+    if (!matches) return;
+    const id = matches[1];
+    return bot.users[id].username;
+}
