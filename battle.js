@@ -1,8 +1,8 @@
 var info = require('./info.js');
 
-const magic_skill = {"天野陽菜":0.05, "兔田ぺこら": 0.25, "努西":0.15}
-const sword_skill = {"旋風":1, '魔人的一擊':1}
-const defense_skill = {"立體機動裝置": 0.1}
+const magic_skill = {"天野陽菜":0.05, "兔田ぺこら": 0.25, "努西":0.15, "記憶解放":0.1, "噴火龍":0.1}
+const sword_skill = {"旋風":1, '魔人的一擊':1, '隕石衝擊':1, '雪崩':1}
+const defense_skill = {"立體機動裝置": 0.1, '雜燴兔':0.1}
 
 exports.fight = function(user, opponent, mode, shout, callback){
 	if(mode != '友好切磋' && mode != '認真對決' && mode != '決一死戰' && mode != '我要殺死你' ){
@@ -146,6 +146,28 @@ function magic(att, def, skill){
 						damage = damage + d
 						r = r.concat(`${att}的寵物努西使出咬碎，對${def}造成 ${d} 點傷害\n`)
 						break
+					case '記憶解放':
+						let miss = Math.random() < 0.8
+						if(miss){
+							r = r.concat(`-「Release Recollection」${att}聚集了附近的神聖力，但因為周遭神聖力不足沒有成功\n`)
+						}
+						else{			
+							d = getRndInteger(100000, 200000)
+							damage = damage + d
+							r = r.concat(`-「Release Recollection」${att}聚集了附近的神聖力，使用金木樨射出毀滅光線，對${def}造成 ${d} 點傷害\n`)
+						}
+						break
+					case '噴火龍':
+						let firemiss = Math.random() < 0.5
+						if(firemiss){
+							r = r.concat(`-${att}從空中發射火球，但打中了雨緣所以沒有命中敵人\n`)
+						}
+						else{			
+							d = getRndInteger(500, 1000)
+							damage = damage + d
+							r = r.concat(`-${att}從空中發射火球，對${def}造成 ${d} 點傷害\n`)
+						}
+						break
 				}
 			}
 		}
@@ -158,7 +180,7 @@ function attack(att, def, att_g, def_g, skill, def_skill){
 	let cast
 	let damage = 0
 	let r = ''
-	let has_skill = ['普攻']
+	let has_skill = ['普攻','普攻','普攻','普攻','普攻']
 	for(var i=0; i < skill.length; i++){
 		if (sword_skill.hasOwnProperty(skill[i])){
 			has_skill.push(skill[i])
@@ -197,7 +219,7 @@ function attack(att, def, att_g, def_g, skill, def_skill){
 				break
 		case '旋風':
 				r = r.concat(`${att}使出了劍技「旋風」`)
-				h = hit(1500, 2000, def, def_g, def_skill)
+				h = hit(700, 1500, def, def_g, def_skill)
 				damage = damage + h['damage']
 				r = r.concat(h['msg'])						
 				break
@@ -211,6 +233,18 @@ function attack(att, def, att_g, def_g, skill, def_skill){
 					damage = damage + h['damage']
 					r = r.concat(h['msg'])	
 				}
+				break
+		case '隕石衝擊':
+				r = r.concat(`${att}使出了隕石衝擊`)
+				h = hit(1000, 2000, def, def_g, def_skill)
+				damage = damage + h['damage']
+				r = r.concat(h['msg'])						
+				break
+		case '雪崩':
+				r = r.concat(`${att}使出了雙手劍技「雪崩」`)
+				h = hit(700, 1500, def, def_g, def_skill)
+				damage = damage + h['damage']
+				r = r.concat(h['msg'])						
 				break
 	}
 	return {'msg':r,'damage':damage}
@@ -227,6 +261,10 @@ function defense(def, skill){
 				switch(skill[i]) {
 					case '立體機動裝置':  
 						r = r.concat(`，但是${def}使用立體機動裝置閃開了\n`)
+						de = true
+						break
+					case '雜燴兔':  
+						r = r.concat(`，但是${def}一跳躲開了\n`)
 						de = true
 						break
 				}
