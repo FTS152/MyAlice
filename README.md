@@ -19,7 +19,8 @@ user.json 格式為:
 		"kill": 87,
 		"move_time": 1591162012122 //timestamp,
 		"battle_time": 1591162012122 //timestamp,
-		"skill": []
+		"skill": [] //collected skill,
+		"battle_skill": []  //skills set for battle, max_length = 6
 	},...
 ]
 ```
@@ -40,6 +41,11 @@ user.json 格式為:
 查看個人資訊
 
 >$info [名字]
+
+
+查看與挑選戰鬥技能
+
+>$skill [check/edit]
 
 行動 CD 為 30 秒，戰鬥 CD 為 100 秒，行動有機會拿到特殊技能在戰鬥中使用
 
