@@ -46,6 +46,21 @@ exports.get_skill = function(target){
 	}
 }
 
+exports.get_battle_skill = function(target){
+	var database = JSON.parse(FS.readFileSync('./user.json', 'utf8'));
+	var result
+	for (var i = 0; i < database.length; i++) {
+		if (database[i]['user'] == target){
+			result = database[i]['battle_skill'];
+		}
+	}
+	if(result){
+		return result
+	}else{
+		return []
+	}
+}
+
 exports.battle_cooldown = function(target, callback){
 	const COOL = 100*1000
 	var result
