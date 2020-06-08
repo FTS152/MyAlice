@@ -1,5 +1,5 @@
 const FS = require('fs');
-var info = require('./info.js');
+var info = require('../info.js');
 const UPDATEJSONFILE = require('update-json-file');
 
 
