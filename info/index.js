@@ -11,6 +11,6 @@ module.exports = {
   describe: "查看個人資訊",
   usage: "[名字]",
   coolDown: 3,
-  aliases:[],
+  aliases: [],
   execute,
 };

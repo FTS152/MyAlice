@@ -33,6 +33,6 @@ module.exports = {
   name: "help",
   describe: "指令",
   usage: "",
-  aliases:[],
+  aliases: [],
   execute,
 };

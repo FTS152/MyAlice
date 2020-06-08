@@ -10,6 +10,6 @@ module.exports = {
   describe: "查看與挑選戰鬥技能",
   usage: "[check/edit]",
   coolDown: 3,
-  aliases:[],
+  aliases: [],
   execute,
 };

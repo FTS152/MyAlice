@@ -17,6 +17,6 @@ module.exports = {
   describe: "挑戰boss",
   usage: "[想挑戰的boss]",
   coolDown: 3,
-  aliases:[],
+  aliases: [],
   execute,
 };

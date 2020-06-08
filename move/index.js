@@ -10,6 +10,6 @@ module.exports = {
   describe: "行動",
   usage: "[狩獵野兔/自主訓練/外出野餐/汁妹/做善事/坐下休息/釣魚/修行/哭啊]",
   coolDown: 3,
-  aliases:[],
+  aliases: [],
   execute,
 };

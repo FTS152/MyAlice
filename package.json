@@ -1,15 +1,15 @@
 {
-	"name": "MyAlice",
-	"version": "1.0.0",
-	"description": "MyAlice",
-	"main": "alice.js",
-	"author": "FTS152",
-	"dependencies": {
-		"discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
-		"discord.js": "^12.2.0",
-		"forever": "^3.0.0",
-		"googleapis": "^39.2.0",
-		"update-json-file": "^1.1.1",
-		"winston": "^3.2.1"
-	}
+  "name": "MyAlice",
+  "version": "1.0.0",
+  "description": "MyAlice",
+  "main": "alice.js",
+  "author": "FTS152",
+  "dependencies": {
+    "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+    "discord.js": "^12.2.0",
+    "forever": "^3.0.0",
+    "googleapis": "^39.2.0",
+    "update-json-file": "^1.1.1",
+    "winston": "^3.2.1"
+  }
 }
