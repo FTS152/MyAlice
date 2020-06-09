@@ -60,25 +60,16 @@ exports.get_battle_skill = function (target) {
   }
 };
 
-exports.battle_cooldown = function (target, callback) {
+exports.battle_cooldown = function (target) {
   const COOL = 100 * 1000;
-  var result;
-  var m = +new Date();
-  var database = JSON.parse(FS.readFileSync("./user.json", "utf8"));
-  for (var i = 0; i < database.length; i++) {
-    if (database[i]["user"] == target) {
-      result = database[i]["battle_time"];
-    }
-  }
-  if (result) {
-    if (m - result < COOL) {
-      callback(false, Math.floor((result + COOL - m) / 1000));
-    } else {
-      callback(true, 0);
-    }
-  } else {
-    callback(true, 0);
-  }
+  const m = +new Date();
+  const database = JSON.parse(FS.readFileSync("./user.json", "utf8"));
+  const user = database.filter((item) => item.user === target)[0];
+  const result = user && +user["battle_time"];
+  if (!result) return { canBattle: true, cool: 0 };
+  if (m - result < COOL)
+    return { canBattle: false, cool: Math.floor((result + COOL - m) / 1000) };
+  return { canBattle: true, cool: 0 };
 };
 
 exports.move_cooldown = function (target, callback) {

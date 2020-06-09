@@ -38,72 +38,63 @@ const yuuki_skill = ["普攻", "聖母聖詠", "野蠻支軸"];
 exports.fight = function (user, callback) {
   var m = new Date();
   var opponent = "Yuuki";
-  info.battle_cooldown(user, function (canBattle, cool) {
-    if (!canBattle) {
-      callback(
-        `${user} 的戰鬥CD還在冷卻中，還有 ${cool} 秒才能再次發起戰鬥 \n`
-      );
-    } else {
-      var user_hp = 3250;
-      var opp_hp = 7000;
-      var user_g = 0;
-      var opp_g = 0;
-      var msg = `\`\`\`diff\n${user} 向 ${opponent} 發起決鬥 ${m.toLocaleString()} \n`;
-      var user_skill = info.get_skill(user);
-      if (!user_skill) {
-        user_skill = [];
-      }
-      oppo_skill = [];
-      round = 0;
-      while (user_hp > 0 && opp_hp > 0) {
-        if (round % 2 == 0) {
-          skill_use = skill();
-          if (skill_use[0] && user_g == 0) {
-            msg = msg.concat(
-              `-「Enhance Armament」${user}解放了金木樨之劍，刀身化作無數的碎片\n`
-            );
-            user_g = 1;
-          }
-          round_data = round_fight(
-            user,
-            opponent,
-            skill_use,
-            user_g,
-            opp_g,
-            user_hp,
-            user_skill,
-            oppo_skill
-          );
-          msg = msg.concat(round_data["round_msg"]);
-          user_hp = user_hp + round_data["heal"];
-          opp_hp = opp_hp - round_data["damage"];
-        } else {
-          round_data = yuuki_fight(
-            opponent,
-            user,
-            user_g,
-            oppo_skill,
-            user_skill
-          );
-          msg = msg.concat(round_data["round_msg"]);
-          user_hp = user_hp - round_data["damage"];
-        }
-        round = round + 1;
-      }
-      if (user_hp < 0) {
-        msg = msg.concat(`${user}倒下了， ${opponent}剩餘 ${opp_hp} 點血量\n`);
-        info.record_battle(user, opponent, 0, 0);
-      } else if (opp_hp < 0) {
-        msg = msg.concat(`${opponent}倒下了， ${user}剩餘 ${user_hp} 點血量\n`);
+  const { canBattle, cool } = info.battle_cooldown(user);
+  if (!canBattle) {
+    const msg = `${user} 的戰鬥CD還在冷卻中，還有 ${cool} 秒才能再次發起戰鬥 \n`;
+    callback(msg);
+    return;
+  }
+
+  var user_hp = 3250;
+  var opp_hp = 7000;
+  var user_g = 0;
+  var opp_g = 0;
+  var msg = `\`\`\`diff\n${user} 向 ${opponent} 發起決鬥 ${m.toLocaleString()} \n`;
+  var user_skill = info.get_skill(user);
+  if (!user_skill) {
+    user_skill = [];
+  }
+  oppo_skill = [];
+  round = 0;
+  while (user_hp > 0 && opp_hp > 0) {
+    if (round % 2 == 0) {
+      skill_use = skill();
+      if (skill_use[0] && user_g == 0) {
         msg = msg.concat(
-          `${user}的愛麗絲成功擊敗絕劍，習得了技能「聖母聖詠」！\n`
+          `-「Enhance Armament」${user}解放了金木樨之劍，刀身化作無數的碎片\n`
         );
-        info.record_move(user, "聖母聖詠");
+        user_g = 1;
       }
-      msg = msg.concat("```");
-      callback(msg);
+      round_data = round_fight(
+        user,
+        opponent,
+        skill_use,
+        user_g,
+        opp_g,
+        user_hp,
+        user_skill,
+        oppo_skill
+      );
+      msg = msg.concat(round_data["round_msg"]);
+      user_hp = user_hp + round_data["heal"];
+      opp_hp = opp_hp - round_data["damage"];
+    } else {
+      round_data = yuuki_fight(opponent, user, user_g, oppo_skill, user_skill);
+      msg = msg.concat(round_data["round_msg"]);
+      user_hp = user_hp - round_data["damage"];
     }
-  });
+    round = round + 1;
+  }
+  if (user_hp < 0) {
+    msg = msg.concat(`${user}倒下了， ${opponent}剩餘 ${opp_hp} 點血量\n`);
+    info.record_battle(user, opponent, 0, 0);
+  } else if (opp_hp < 0) {
+    msg = msg.concat(`${opponent}倒下了， ${user}剩餘 ${user_hp} 點血量\n`);
+    msg = msg.concat(`${user}的愛麗絲成功擊敗絕劍，習得了技能「聖母聖詠」！\n`);
+    info.record_move(user, "聖母聖詠");
+  }
+  msg = msg.concat("```");
+  callback(msg);
 };
 
 function yuuki_fight(att, def, def_g, att_skill, def_skill) {

@@ -39,11 +39,13 @@ bot.on("message", function (user, userID, channelID, message, evt) {
   if (!commands[cmd]) return;
   const username = bot.users[userID].username;
   const mention = args[1] && args[1][0] === "<" && getUserFromMention(args[1]);
-  const sendMessage = (msg) =>
+  const sendMessage = (msg) => {
+    // TODO: msg 超過一定長度(目測兩千)會被discord忽略
     bot.sendMessage({
       to: channelID,
       message: msg,
     });
+  };
 
   const msgInfo = {
     user,
