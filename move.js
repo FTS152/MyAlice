@@ -1,4 +1,4 @@
-var info = require('../info.js');
+var info = require('./info.js');
 
 exports.practice = function(user, move, callback){
 
