@@ -37,10 +37,11 @@ exports.practice = function (user, move, sendMessage) {
   }
 
   const possibleEvents = event[move];
-  possibleEvents.forEach((event) => {
-    if (Math.random() > event.prob) return;
+  possibleEvents.some((event) => {
+    if (Math.random() > event.prob) return false;
     msg = msg.concat(event.text(user));
     skill = event.skill;
+    return true;
   });
 
   info.record_move(user, skill);
