@@ -13,7 +13,10 @@ let sword_skill = { ...sword_skill_origin };
 let defense_skill = { ...defense_skill_origin };
 
 exports.fight = function (user, opponent, mode, shout, sendMessage) {
-  if (!type[mode]) return sendMessage("沒有這個對戰模式！");
+  if (!type[mode]) {
+    sendMessage("沒有這個對戰模式！");
+    return;
+  }
   const death = type[mode];
   const m = new Date();
   const { canBattle, cool } = info.battle_cooldown(user);

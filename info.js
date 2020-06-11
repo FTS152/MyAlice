@@ -2,7 +2,7 @@ const FS = require("fs");
 const UPDATEJSONFILE = require("update-json-file");
 const { isEmpty } = require("lodash");
 
-// main info comment
+// main info command
 exports.info = {
   name: "info",
   describe: "查看個人資訊",
@@ -18,9 +18,10 @@ exports.info = {
 
 const get_user_data = (target) => {
   const database = JSON.parse(FS.readFileSync("./user.json", "utf8"));
-  const user = database.filter((item) => item.user === target)[0];
+  const user = database.find((item) => item.user === target);
   return user || {};
 };
+exports.get_user_data = get_user_data;
 
 exports.record = function (user, tar, sendMessage) {
   const target = tar || user;
@@ -91,8 +92,8 @@ exports.record_battle = function (att, def, result, death) {
     });
 
     // get users refer
-    const att_user = database.find((item) => item.user === att);
-    const def_user = database.find((item) => item.user === def);
+    let att_user = database.find((item) => item.user === att);
+    let def_user = database.find((item) => item.user === def);
 
     if (att_user) write_battle(att_user)(result, !result, death, m);
     if (def_user) write_battle(def_user)(!result, result, death);
@@ -121,7 +122,7 @@ exports.record_move = function (user, skill) {
   UPDATEJSONFILE("./user.json", (database) => {
     const m = +new Date();
     // get user refer
-    const user_data = database.find((item) => item.user === user);
+    let user_data = database.find((item) => item.user === user);
 
     if (!user_data) {
       const new_user = {

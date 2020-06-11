@@ -1,8 +1,14 @@
-const skill = require("./skill.js");
+const { check, edit, help_text } = require("./skill.js");
 
 const execute = (msgInfo, args) => {
   const { username, sendMessage } = msgInfo;
-  skill.edit(username, args[1], args[2], sendMessage);
+  const skill = { check, edit };
+  const mode = args[1]
+  if (!skill[mode]) {
+    sendMessage(help_text);
+    return
+  }
+  skill[mode](username, args[2], sendMessage);
 };
 
 module.exports = {
